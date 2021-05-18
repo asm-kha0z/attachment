@@ -45,7 +45,7 @@ def wanted(filename):
     if filename in BLACKLIST:
         return False
     for ext in ['*.doc', '*.docx', '*.odt', '*.pdf', '*.rtf']:
-        if fnmatch.fnmatch(filename, ext):
+        if fnmatch.fnmatch(filename.lower(), ext):
             return True
     return False
 
