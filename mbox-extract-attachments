@@ -51,7 +51,7 @@ def wanted(filename):
 
 def process_message(msg, directory, attachment_db):
     for part in msg.walk():
-        if part.get_content_disposition() == 'attachment':
+       if part.get_content_disposition() in ['attachment', 'inline']:
             filename = part.get_filename()
             if filename and wanted(filename):
                 logging.debug("extract filename: %s" % filename)
