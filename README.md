@@ -1,6 +1,6 @@
 # :mailbox: attachment :paperclip:
 
-Extract attachments from email boxes in mbox format.
+This is a forked Google Gmail Mailbox attachment extractpr script and extracts specified attachments (PDFs) from email boxes in mbox format.
 
 Particularly useful for Google Takeout, which exports email from Gmail in `mbox` format.
 
@@ -9,10 +9,6 @@ Particularly useful for Google Takeout, which exports email from Gmail in `mbox`
 ``` bash
 mbox-extract-attachments <mbox-file> [extraction-directory]
 ```
-
-# Contact
-
-Liam@tenex.tech
 
 # Requirements
 
