@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = "Liam Bowen <liambowen@gmail.com>"
 __license__ = "GNU GPLv3+"
 __version__ = 1.0
-__date__ = "2016-03-10"
+__date__ = "2021-07-19"
 
 import email
 import mailbox
@@ -13,6 +12,7 @@ import sys
 import logging
 import fnmatch
 import hashlib
+import email.header
 
 BLACKLIST = set(['signature.asc', 'message-footer.txt', 'smime.p7s'])
 
@@ -32,7 +32,8 @@ def extract_attachment(msg, destination, attachment_db):
     orig_destination = destination
     n = 1
     while os.path.exists(destination):
-        destination = orig_destination + "." + str(n)
+        base, ext = os.path.splitext(orig_destination)
+        destination = base + str(n) + ext
         n += 1
 
     try:
@@ -41,21 +42,30 @@ def extract_attachment(msg, destination, attachment_db):
     except IOError as e:
         logging.error("io error while saving attachment: %s" % str(e))
 
+def decode_mime_words(s):
+    decoded_words = []
+    for text, charset in email.header.decode_header(s):
+        text = text.decode(charset or 'utf8')
+        decoded_words.append(text)
+    return ''.join(decoded_words)
+
 def wanted(filename):
-    if filename in BLACKLIST:
+    decoded_filename = decode_mime_words(filename)
+    if decoded_filename in BLACKLIST:
         return False
     for ext in ['*.doc', '*.docx', '*.odt', '*.pdf', '*.rtf']:
-        if fnmatch.fnmatch(filename.lower(), ext):
+        if fnmatch.fnmatch(decoded_filename.lower(), ext):
             return True
     return False
 
 def process_message(msg, directory, attachment_db):
     for part in msg.walk():
-       if part.get_content_disposition() in ['attachment', 'inline']:
+        if part.get_content_disposition() in ['attachment', 'inline']:
             filename = part.get_filename()
             if filename and wanted(filename):
                 logging.debug("extract filename: %s" % filename)
-                destination = os.path.join(directory, filename)
+                decoded_filename = decode_mime_words(filename)
+                destination = os.path.join(directory, decoded_filename)
                 extract_attachment(part, destination, attachment_db)
             if not filename:
                 logging.debug("found message with nameless attachment: %s" % msg['subject'])
