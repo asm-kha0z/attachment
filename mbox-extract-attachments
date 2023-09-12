@@ -45,7 +45,8 @@ def extract_attachment(msg, destination, attachment_db):
 def decode_mime_words(s):
     decoded_words = []
     for text, charset in email.header.decode_header(s):
-        text = text.decode(charset or 'utf8')
+        if isinstance(text, bytes):
+            text = text.decode(charset or 'utf8')
         decoded_words.append(text)
     return ''.join(decoded_words)
 
